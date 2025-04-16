@@ -67,6 +67,7 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    print(f"[DEBUG] 來源：{event.source.type} / ID：{event.source.group_id if event.source.type == 'group' else 'N/A'}")
     msg = event.message.text.strip()
     if msg.lower() == "匯率":
         rate = get_usd_to_twd()
