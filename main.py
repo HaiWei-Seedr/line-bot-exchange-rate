@@ -46,7 +46,7 @@ def threshold_check():
 
 # 啟動排程器
 scheduler = BackgroundScheduler(daemon=True)
-scheduler.add_job(daily_rate_check, 'interval', minutes=5)
+scheduler.add_job(daily_rate_check, 'cron', hour=10, minute=0)
 scheduler.add_job(threshold_check, 'interval', minutes=30)
 scheduler.start()
 
