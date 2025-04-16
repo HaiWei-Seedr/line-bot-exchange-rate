@@ -13,14 +13,14 @@ line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
 
 # 匯率來源與警戒值
-EXCHANGE_API = "https://api.frankfurter.app/latest?from=USD&to=TWD"
+EXCHANGE_API = "https://tw.rter.info/capi.php"
 THRESHOLD = 32.00  # 低於此值發送警告
 
 def get_usd_to_twd():
     try:
         response = requests.get(EXCHANGE_API)
-        response.raise_for_status()
-        rate = response.json()["rates"]["TWD"]
+        data = response.json()
+        rate = data["USD"]["Exrate"]
         return round(rate, 4)
     except Exception as e:
         print(f"[ERROR] 匯率查詢失敗: {e}")
