@@ -20,7 +20,7 @@ def get_usd_to_twd():
     try:
         response = requests.get(EXCHANGE_API)
         data = response.json()
-        rate = data["USD"]["Exrate"]
+        rate = data["USDTWD"]["Exrate"]
         return round(rate, 4)
     except Exception as e:
         print(f"[ERROR] 匯率查詢失敗: {e}")
