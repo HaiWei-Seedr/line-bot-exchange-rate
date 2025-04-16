@@ -36,6 +36,3 @@ def handle_message(event):
         event.reply_token,
         TextSendMessage(text=f"你說了：{msg}")
     )
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
