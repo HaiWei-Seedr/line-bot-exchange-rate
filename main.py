@@ -18,9 +18,13 @@ def callback():
     signature = request.headers.get("X-Line-Signature")
     body = request.get_data(as_text=True)
 
+    print(f"🔍 [DEBUG] Signature: {signature}")
+    print(f"🔍 [DEBUG] Body: {body}")
+
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
+        print("❌ Invalid signature.")
         abort(400)
 
     return 'OK'
