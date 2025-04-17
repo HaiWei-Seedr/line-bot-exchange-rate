@@ -13,15 +13,16 @@ line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
 
 # 匯率來源與警戒值
-EXCHANGE_API = "https://tw.rter.info/capi.php"
+EXCHANGE_API = "https://openapi.taifex.com.tw/v1/DailyForeignExchangeRates"
 THRESHOLD = 32.00  # 低於此值發送警告
 
 def get_usd_to_twd():
     try:
         response = requests.get(EXCHANGE_API)
         data = response.json()
-        rate = data["USDTWD"]["Exrate"]
-        return round(rate, 4)
+        # 找出 USD/NTD 的值（資料在第一筆）
+        usd_twd = float(data[0]["USD/NTD"])
+        return round(usd_twd, 4)
     except Exception as e:
         print(f"[ERROR] 匯率查詢失敗: {e}")
         return None
