@@ -16,6 +16,9 @@ handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
 EXCHANGE_API = "https://api.exchangerate.fun/latest?base=USD"
 THRESHOLD = 32.00  # 低於此值發送警告
 
+# ✅ 群組 ID：你提供的固定值
+GROUP_ID = "C896c2909a2348220effebff19eac1a24"
+
 def get_usd_to_twd():
     try:
         response = requests.get(EXCHANGE_API)
@@ -28,7 +31,7 @@ def get_usd_to_twd():
 
 def notify_group(text):
     try:
-        line_bot_api.broadcast(TextSendMessage(text=text))
+        line_bot_api.push_message(GROUP_ID, TextSendMessage(text=text))
     except Exception as e:
         print(f"[ERROR] 訊息推播失敗: {e}")
 
@@ -36,17 +39,19 @@ def notify_group(text):
 def daily_rate_check():
     rate = get_usd_to_twd()
     if rate:
+        print(f"[SCHEDULE] 發送每日匯率：{rate}")
         notify_group(f"📢 今日美元對台幣匯率：{rate}")
 
 # 門檻觸發通知
 def threshold_check():
     rate = get_usd_to_twd()
     if rate and rate < THRESHOLD:
+        print(f"[SCHEDULE] 匯率跌破門檻：{rate}")
         notify_group(f"⚠️ 美元匯率已低於 {THRESHOLD}：目前為 {rate}")
 
 # 啟動排程器
 scheduler = BackgroundScheduler(daemon=True)
-scheduler.add_job(daily_rate_check, 'cron', hour=3, minute=45)
+scheduler.add_job(daily_rate_check, 'cron', hour=3, minute=55)
 scheduler.add_job(threshold_check, 'interval', minutes=30)
 scheduler.start()
 
