@@ -59,6 +59,27 @@ scheduler.add_job(daily_rate_check, 'cron', hour=4, minute=0)
 scheduler.add_job(threshold_check, 'interval', minutes=30)
 scheduler.start()
 
+@app.route("/facebook_webhook", methods=['GET', 'POST'])
+def facebook_webhook():
+    if request.method == 'GET':
+        token = request.args.get("hub.verify_token")
+        challenge = request.args.get("hub.challenge")
+        if token == "hyderson_verify_token":
+            return challenge
+        return "驗證失敗", 403
+
+    if request.method == 'POST':
+        data = request.get_json()
+        print("[Facebook Webhook] 收到事件：", data)
+        return "OK", 200
+
+@app.route("/")
+def home():
+    return "LINE Bot is running."
+
+@app.route("/callback", methods=['POST'])
+def callback():
+
 @app.route("/")
 def home():
     return "LINE Bot is running."
