@@ -68,9 +68,24 @@ def facebook_webhook():
         if token == "hyderson_verify_token":
             return challenge
         return "驗證失敗", 403
+
     if request.method == 'POST':
         data = request.get_json()
         print("[Facebook Webhook] 收到事件：", data)
+
+        # 檢查是否是粉專貼文事件
+        try:
+            for entry in data.get("entry", []):
+                for change in entry.get("changes", []):
+                    if change.get("field") == "feed":
+                        post = change.get("value", {})
+                        message = post.get("message", "[沒有內文]")
+                        post_id = post.get("post_id", "")
+                        link = f"https://www.facebook.com/{post_id.replace('_', '/posts/')}"
+                        notify_group(f"📰 Facebook 有新貼文：\n\n{message}\n👉 {link}")
+        except Exception as e:
+            print(f"[Webhook 處理錯誤] {e}")
+
         return "OK", 200
 
 # LINE webhook 健康檢查
