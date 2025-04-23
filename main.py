@@ -59,6 +59,7 @@ scheduler.add_job(daily_rate_check, 'cron', hour=4, minute=0)
 scheduler.add_job(threshold_check, 'interval', minutes=30)
 scheduler.start()
 
+# Facebook webhook 驗證與事件接收
 @app.route("/facebook_webhook", methods=['GET', 'POST'])
 def facebook_webhook():
     if request.method == 'GET':
@@ -67,34 +68,28 @@ def facebook_webhook():
         if token == "hyderson_verify_token":
             return challenge
         return "驗證失敗", 403
-
     if request.method == 'POST':
         data = request.get_json()
         print("[Facebook Webhook] 收到事件：", data)
         return "OK", 200
 
+# LINE webhook 健康檢查
 @app.route("/")
 def home():
     return "LINE Bot is running."
 
-@app.route("/callback", methods=['POST'])
-def callback():
-
-@app.route("/")
-def home():
-    return "LINE Bot is running."
-
+# LINE webhook callback
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers.get("X-Line-Signature")
     body = request.get_data(as_text=True)
-
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
     return 'OK'
 
+# LINE 訊息處理
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print(f"[DEBUG] 來源：{event.source.type} / ID：{event.source.group_id if event.source.type == 'group' else 'N/A'}")
