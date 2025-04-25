@@ -72,19 +72,17 @@ def facebook_webhook():
     if request.method == 'POST':
         data = request.get_json()
         print("[Facebook Webhook] 收到事件：", data)
-
-        # 檢查是否是粉專貼文事件
+        
+        # 如果是貼文事件就通知群組
         try:
-            for entry in data.get("entry", []):
-                for change in entry.get("changes", []):
-                    if change.get("field") == "feed":
-                        post = change.get("value", {})
-                        message = post.get("message", "[沒有內文]")
-                        post_id = post.get("post_id", "")
-                        link = f"https://www.facebook.com/{post_id.replace('_', '/posts/')}"
-                        notify_group(f"📰 Facebook 有新貼文：\n\n{message}\n👉 {link}")
+            if data.get("object") == "page":
+                for entry in data.get("entry", []):
+                    for change in entry.get("changes", []):
+                        if change.get("field") == "feed":
+                            message = change["value"].get("message", "📰 有新貼文")
+                            notify_group(f"📰 Facebook 新貼文：{message}")
         except Exception as e:
-            print(f"[Webhook 處理錯誤] {e}")
+            print("[ERROR] webhook 資料處理失敗：", e)
 
         return "OK", 200
 
