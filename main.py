@@ -114,6 +114,23 @@ def handle_message(event):
             event.reply_token,
             TextSendMessage(text=reply)
         )
+@app.route("/facebook_webhook", methods=['GET', 'POST'])
+def facebook_webhook():
+    if request.method == 'GET':
+        print("[Webhook] Facebook 發起驗證請求")
+        token = request.args.get("hub.verify_token")
+        challenge = request.args.get("hub.challenge")
+        if token == "hyderson_verify_token":
+            print("[Webhook] 驗證成功，回傳 challenge")
+            return challenge
+        print("[Webhook] 驗證失敗")
+        return "驗證失敗", 403
+
+    if request.method == 'POST':
+        data = request.get_json()
+        print("[Facebook Webhook] 收到事件：", data)
+        return "OK", 200
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
