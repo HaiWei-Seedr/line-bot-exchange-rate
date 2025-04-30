@@ -14,7 +14,7 @@ handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
 
 # 匯率來源與警戒值
 EXCHANGE_API = "https://api.exchangerate.fun/latest?base=USD"
-THRESHOLD = 32.00  # 低於此值發送警告
+THRESHOLD = 29.00  # 低於此值發送警告
 
 # ✅ 群組 ID
 GROUP_ID = "C896c2909a2348220effebff19eac1a24"
