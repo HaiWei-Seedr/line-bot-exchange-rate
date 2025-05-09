@@ -44,17 +44,12 @@ def daily_rate_check():
         print(f"[SCHEDULE] 發送每日匯率：{rate}")
         notify_group(f"📢 今日美元對台幣匯率：{rate}")
 
-# 每分鐘檢查 7~14 點整點與半點發送
+# 週一至週五定時回報
 def periodic_rate_report():
-    now = datetime.now()
-    hour = now.hour
-    minute = now.minute
-
-    if 7 <= hour < 15 and minute in [0, 30]:
-        rate = get_usd_to_twd()
-        if rate:
-            print(f"[SCHEDULE] 自動回報匯率：{rate}")
-            notify_group(f"⏰ 美元對台幣即時匯率：{rate}")
+    rate = get_usd_to_twd()
+    if rate:
+        print(f"[SCHEDULE] 工作日兩小時定時回報匯率：{rate}")
+        notify_group(f"📈 美元對台幣匯率快報：{rate}")
 
 # 匯率警戒檢查
 def threshold_check():
@@ -66,15 +61,16 @@ def threshold_check():
 # 啟動排程
 scheduler = BackgroundScheduler(daemon=True)
 
-# 每日清晨
+# 每日清晨（凌晨 0~4 點）固定推播一次匯率
 for h in range(5):
     scheduler.add_job(daily_rate_check, 'cron', hour=h, minute=0)
 
-# 每分鐘檢查（7~14點的 0 分與 30 分報價）
-scheduler.add_job(periodic_rate_report, 'interval', minutes=1)
+# 每週一至五上午 10:00、12:00、14:00 推播匯率
+for hour in [10, 12, 14]:
+    scheduler.add_job(periodic_rate_report, 'cron', day_of_week='mon-fri', hour=hour, minute=0)
 
-# 每 30 分鐘檢查警戒區間
-scheduler.add_job(threshold_check, 'interval', minutes=30)
+# 每 5 分鐘檢查是否落在匯率警戒區間
+scheduler.add_job(threshold_check, 'interval', minutes=5)
 
 scheduler.start()
 
